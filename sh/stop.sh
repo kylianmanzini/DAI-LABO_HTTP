@@ -1,1 +1,3 @@
-docker rm $(docker stop $(docker ps -a -q --filter ancestor=$1))
+echo "#####"
+echo "Stopping container"
+docker stop $(docker ps -a -q --filter ancestor=$1)
