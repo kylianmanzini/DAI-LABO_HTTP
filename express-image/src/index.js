@@ -7,13 +7,13 @@ var app = express();
 var port = 3000;
 
 app.get('/', function (req,res){
-    res.send("Bonjour " + chance.name() + " " + chance.city());
+    res.send(getZoo());
     console.log("Access to /");
 });
 
-app.get('/zoo', function (req,res){
+app.get('/api', function (req,res){
     res.send(getZoo());
-    console.log("Access to /zoo");
+    console.log("Access to /api");
 });
 
 app.listen(port, function (){
@@ -22,9 +22,9 @@ app.listen(port, function (){
 
 function getZoo(){
     var zoo = [];
-    for (i = 0; i < chance.integer({min: 4, max: 10}); ++i){
+    for (i = 0; i < 5; ++i){
         zoo[i] = {
-            population: chance.integer({min: 1, max: 10}),
+            population: chance.integer({min: 1, max: 5}),
             species : chance.animal(),
             overseer: chance.name(),
             cleaningDay: chance.weekday(),
