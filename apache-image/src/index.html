@@ -26,12 +26,48 @@
 <!-- First Grid -->
 <div class="w3-row-padding w3-padding-64 w3-container">
     <div class="w3-content">
-        <div class="w3-twothird">
-            <h1>Lorem Ipsum</h1>
-            <h5 class="w3-padding-32">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</h5>
+        <div class="w3-twothird" id="animal">
+            <h1>Un animal du Zoo :</h1>
+            <p id="espece"></p>
+            <p id="nom"></p>
+            <p id="genre"></p>
+            <p id="naissance"></p>
+            <p id="gardien"></p>
         </div>
     </div>
 </div>
+
+<script>
+    const espece = document.getElementById('espece'),
+        nom = document.getElementById('nom'),
+        genre = document.getElementById('genre'),
+        naissance = document.getElementById('naissance'),
+        gardien = document.getElementById('gardien');
+
+    async function populatePage() {
+        const res = await resultAPI();
+        console.log(res);
+
+        espece.textContent=("Espèce : " + res.species)
+        nom.textContent=("Nom : " + res.name)
+        genre.textContent=("Genre : " + res.gender)
+        naissance.textContent=("Naissance : " + res.birthday)
+        gardien.textContent=("Gardien : " + res.overseer)
+    }
+
+    async function resultAPI() {
+        const response = await fetch("http://localhost/api")
+        if (response.ok) {
+            const jsonValue = await response.json();
+            return Promise.resolve(jsonValue);
+        } else {
+            return Promise.reject("*** Error while fetching api");
+        }
+    }
+    populatePage();
+    window.setInterval(populatePage, 4000);
+
+</script>
 
 </body>
 </html>
