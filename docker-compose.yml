@@ -24,8 +24,8 @@ services:
       context: express-image
     labels:
       - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
+
     depends_on:
-      - app
       - traefik
 
   app:
@@ -35,4 +35,5 @@ services:
     labels:
       - traefik.http.routers.app.rule=Host(`localhost`)
     depends_on:
+      - data_api
       - traefik
