@@ -32,8 +32,12 @@ services:
     image: dai/apache
     build:
       context: apache-image
+    deploy:
+      replicas: 3
     labels:
       - traefik.http.routers.app.rule=Host(`localhost`)
+      - traefik.http.services.app.loadbalancer.sticky.cookie=true
+      - traefik.http.services.app.loadbalancer.sticky.cookie.name=sticky-cookie
     depends_on:
       - data_api
       - traefik
