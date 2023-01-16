@@ -18,17 +18,21 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  app:
-    build: ./apache-image/
-    labels:
-      - traefik.http.routers.app.rule=Host(`localhost`)
-    depends_on:
-      - traefik
-
   data_api:
-    build: ./express-image/
+    image: dai/api
+    build:
+      context: express-image
     labels:
       - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
     depends_on:
       - app
+      - traefik
+
+  app:
+    image: dai/apache
+    build:
+      context: apache-image
+    labels:
+      - traefik.http.routers.app.rule=Host(`localhost`)
+    depends_on:
       - traefik
