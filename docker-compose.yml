@@ -30,6 +30,8 @@ services:
     image: dai/api
     build:
       context: express-image
+    deploy:
+      replicas: 3
     labels:
       - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
 

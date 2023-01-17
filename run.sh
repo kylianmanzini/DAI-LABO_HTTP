@@ -2,10 +2,8 @@
 if [ $2 == "build" ]; then
     ./sh/build.sh $1
 
-
 elif [ $2 == "start" ]; then
     ./sh/start.sh $1
-
 
 elif [ $2 == "stop" ]; then
     ./sh/stop.sh $1
