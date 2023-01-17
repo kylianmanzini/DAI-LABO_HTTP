@@ -1,9 +1,9 @@
 version: '3'
 
 services:
-
   traefik:
     image: traefik
+    container_name: reverse_proxy
     command:
       - --api.dashboard=true
       - --api.insecure=true
@@ -19,12 +19,12 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   docker-web-gui:
-    container_name: docker-web-gui
     image: kaive/docker-web-gui
-    ports:
-      - "3230:3230"
+    container_name: docker_management_ui
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    labels:
+      - traefik.http.routers.docker-web-gui.rule=Host(`manage.localhost`)
 
   data_api:
     image: dai/api
@@ -36,7 +36,7 @@ services:
     depends_on:
       - traefik
 
-  app:
+  apache_app:
     image: dai/apache
     build:
       context: apache-image

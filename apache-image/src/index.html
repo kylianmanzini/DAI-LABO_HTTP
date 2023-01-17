@@ -1,71 +1,119 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Apache</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <style>
-        body,h1,h2,h3,h4,h5,h6 {font-family: "Lato", sans-serif}
-        .w3-bar,h1,button {font-family: "Montserrat", sans-serif}
-        .fa-anchor,.fa-coffee {font-size:200px}
-    </style>
+	<meta charset="utf-8">
+	<title>Infra HTTP</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+<!-- 
+Easy Profile Template
+http://www.templatemo.com/tm-467-easy-profile
+-->
+	<!-- stylesheet css -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/templatemo-blue.css">
+
 </head>
-<body>
+<body data-spy="scroll" data-target=".navbar-collapse">
 
-<!-- Header -->
-<header class="w3-container w3-red w3-center" style="padding:128px 16px">
-    <h1 class="w3-margin w3-jumbo">DAI</h1>
-    <p class="w3-xlarge">Laboratoire Infrastructure HTTP</p>
-    <button class="w3-button w3-black w3-padding-large w3-large w3-margin-top">Bouton qui fait des trucs</button>
-</header>
-
-<!-- First Grid -->
-<div class="w3-row-padding w3-padding-64 w3-container">
-    <div class="w3-content">
-        <div class="w3-twothird" id="animal">
-            <h1>Un animal du Zoo :</h1>
-            <p id="espece"></p>
-            <p id="nom"></p>
-            <p id="genre"></p>
-            <p id="naissance"></p>
-            <p id="gardien"></p>
-        </div>
-    </div>
+<!-- preloader section -->
+<div class="preloader">
+	<div class="sk-spinner sk-spinner-wordpress">
+       <span class="sk-inner-circle"></span>
+     </div>
 </div>
 
+<!-- header section -->
+<header>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12 col-sm-12">
+				<img src="images/tm-easy-profile.jpg" class="img-responsive img-circle tm-border" alt="">
+				<hr>
+				<h1 class="tm-title bold shadow" style="text-shadow: 1px 1px 0px black">ZOO DAI</h1>
+				<h1 class="white bold shadow" style="text-shadow: 1px 1px 0px black">Discover our animals</h1>
+			</div>
+		</div>
+	</div>
+</header>
+
+<!-- about and skills section -->
+<section class="container">
+	<div class="row">
+		<div class="col-md-6 col-sm-12">
+			<div class="about" id="animal">
+				<h2 class="accent" id="status"></h2>
+				<p id="espece"></p>
+				<p id="nom"></p>
+				<p id="genre"></p>
+				<p id="naissance"></p>
+				<p id="gardien"></p>
+			</div>
+
+		</div>
+	</div>
+</section>
+
+<!-- footer section -->
+<footer>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12 col-sm-12">
+				<p style="text-shadow: 1px 1px 0px black">Copyright &copy; 2023 Kylian Manzini - Ylli Fazlija</p>
+			</div>
+		</div>
+	</div>
+</footer>
+
+<!-- javascript js -->	
+<script src="js/jquery.js"></script>
+<script src="js/bootstrap.min.js"></script>	
+<script src="js/jquery.backstretch.min.js"></script>
+<script src="js/custom.js"></script>
+
 <script>
-    const espece = document.getElementById('espece'),
-        nom = document.getElementById('nom'),
-        genre = document.getElementById('genre'),
-        naissance = document.getElementById('naissance'),
-        gardien = document.getElementById('gardien');
+	const status = document.getElementById('status'),
+			espece = document.getElementById('espece'),
+			nom = document.getElementById('nom'),
+			genre = document.getElementById('genre'),
+			naissance = document.getElementById('naissance'),
+			gardien = document.getElementById('gardien');
 
-    async function populatePage() {
-        const res = await resultAPI();
-        console.log(res);
+	async function populatePage() {
+		const response = await resultAPI();
+		const res = await response.json();
+		console.log(res);
+		if(response.ok){
+			status.textContent = "A random animal";
+			espece.textContent=("Species : " + res.species);
+			nom.textContent=("Name : " + res.name);
+			genre.textContent=("Gender : " + res.gender);
+			naissance.textContent=("Birthday : " + res.birthday);
+			gardien.textContent=("Overseer : " + res.overseer);
+		}
+		else {
+			status.textContent = "We can't find any animals";
+			espece.textContent=("Try again later");
+			nom.textContent=("");
+			genre.textContent=("");
+			naissance.textContent=("");
+			gardien.textContent=("");
+		}
+	}
 
-        espece.textContent=("Espèce : " + res.species)
-        nom.textContent=("Nom : " + res.name)
-        genre.textContent=("Genre : " + res.gender)
-        naissance.textContent=("Naissance : " + res.birthday)
-        gardien.textContent=("Gardien : " + res.overseer)
-    }
-
-    async function resultAPI() {
-        const response = await fetch("http://localhost/api")
-        if (response.ok) {
-            const jsonValue = await response.json();
-            return Promise.resolve(jsonValue);
-        } else {
-            return Promise.reject("*** Error while fetching api");
-        }
-    }
-    populatePage();
-    window.setInterval(populatePage, 4000);
+	async function resultAPI() {
+		const response = await fetch("http://localhost/api")
+		if (response.ok) {
+			return Promise.resolve(response);
+		} else {
+			return Promise.reject("*** Error while fetching api");
+		}
+	}
+	populatePage();
+	window.setInterval(populatePage, 6000);
 
 </script>
 
