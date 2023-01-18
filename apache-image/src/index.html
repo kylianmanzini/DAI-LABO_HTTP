@@ -27,12 +27,10 @@ http://www.templatemo.com/tm-467-easy-profile
 </div>
 
 <!-- header section -->
-<header>
+<header style="padding: 100px 0 !important;">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 col-sm-12">
-				<img src="images/tm-easy-profile.jpg" class="img-responsive img-circle tm-border" alt="">
-				<hr>
 				<h1 class="tm-title bold shadow" style="text-shadow: 1px 1px 0px black">ZOO DAI</h1>
 				<h1 class="white bold shadow" style="text-shadow: 1px 1px 0px black">Discover our animals</h1>
 			</div>
@@ -45,8 +43,8 @@ http://www.templatemo.com/tm-467-easy-profile
 	<div class="row">
 		<div class="col-md-6 col-sm-12">
 			<div class="about" id="animal">
-				<h2 class="accent" id="status"></h2>
-				<p id="espece"></p>
+				<h2 class="accent" id="status">An animal is coming..</h2>
+				<p id="espece">Wait for it!</p>
 				<p id="nom"></p>
 				<p id="genre"></p>
 				<p id="naissance"></p>
@@ -58,7 +56,7 @@ http://www.templatemo.com/tm-467-easy-profile
 </section>
 
 <!-- footer section -->
-<footer>
+<footer style="padding: 40px 0 !important;">
 	<div class="container">
 		<div class="row">
 			<div class="col-md-12 col-sm-12">
@@ -82,36 +80,45 @@ http://www.templatemo.com/tm-467-easy-profile
 			naissance = document.getElementById('naissance'),
 			gardien = document.getElementById('gardien');
 
-	async function populatePage() {
-		const response = await resultAPI();
-		const res = await response.json();
-		console.log(res);
-		if(response.ok){
-			status.textContent = "A random animal";
-			espece.textContent=("Species : " + res.species);
-			nom.textContent=("Name : " + res.name);
-			genre.textContent=("Gender : " + res.gender);
-			naissance.textContent=("Birthday : " + res.birthday);
-			gardien.textContent=("Overseer : " + res.overseer);
-		}
-		else {
-			status.textContent = "We can't find any animals";
-			espece.textContent=("Try again later");
-			nom.textContent=("");
-			genre.textContent=("");
-			naissance.textContent=("");
-			gardien.textContent=("");
-		}
+	function populatePage() {
+		const fetchPromise = fetch("http://localhost/api");
+		console.log(fetchPromise);
+		fetchPromise
+		.then((response) => {
+			if (!response.ok){
+				populateError();
+				throw new Error(`HTTP error: ${response.status}`);
+			}
+			return response.json();
+		})
+		.then((data) => {
+			console.log("data received");
+			populateOk(data);
+		})
+		.catch((error) => {
+			populateError();
+			console.error(`api did not work: ${error}`);
+		})
 	}
 
-	async function resultAPI() {
-		const response = await fetch("http://localhost/api")
-		if (response.ok) {
-			return Promise.resolve(response);
-		} else {
-			return Promise.reject("*** Error while fetching api");
-		}
+	function populateOk(res){
+		status.textContent = "A random animal";
+		espece.textContent = ("Species : " + res.species);
+		nom.textContent = ("Name : " + res.name);
+		genre.textContent = ("Gender : " + res.gender);
+		naissance.textContent = ("Birthday : " + res.birthday);
+		gardien.textContent = ("Overseer : " + res.overseer);
 	}
+
+	function populateError(){
+		status.textContent = ("We can't find any animals :(");
+		espece.textContent=("Try again later please");
+		nom.textContent=("");
+		genre.textContent=("");
+		naissance.textContent=("");
+		gardien.textContent=("");
+	}
+
 	populatePage();
 	window.setInterval(populatePage, 6000);
 
