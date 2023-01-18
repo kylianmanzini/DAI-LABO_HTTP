@@ -1,55 +1,93 @@
-# Step 4 - Fetch javascript requests
+# Step 3b - Traefik and dynamic clusters
 
-The goal of this step was to get data from our api and update our website with the data.
+## Traefik
 
-We use the ``fetch()`` function in javascript to get our data.
-
-First we need to add a script tag at the end of the ``index.html`` of the apache web server. In this template we have differents HTML tag with set ids, such as ``nom``, ``espece`` or ``status``.
-
-To modify the content, we use functions called ``populateOk(data)`` and ``populateError()``, to add content when we received data from the api and add default content when there is a problem receiving the data. To modify the content, we simply select the correct element by id and modify the content in the populate function, like this:
-```
-    const nom = document.getElementById('nom'),
-    ...
-	nom.textContent = ("Name : " + res.name);
+Traefik is a reverse proxy that can be used to redirect client requests to the right server. To add Traefik to our project, we simply need to add it as a new service in our  ``docker-compose.yml``, like this
 
 ```
-To get the data, we use this function: 
+  traefik:
+    image: traefik
+    container_name: reverse_proxy
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+    ports:
+      - "80:80"
+      - "8080:8080"
+
+    labels:
+      - traefik.enable=true
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 ```
-	function populatePage() {
-		const fetchPromise = fetch("http://localhost/api");
-		console.log(fetchPromise);
-		fetchPromise
-		.then((response) => {
-			if (!response.ok){
-				populateError();
-				throw new Error(`HTTP error: ${response.status}`);
-			}
-			return response.json();
-		})
-		.then((data) => {
-			console.log("data received");
-			populateOk(data);
-		})
-		.catch((error) => {
-			populateError();
-			console.error(`api did not work: ${error}`);
-		})
-	}
-```
+In our case, we want to activate the Traefik dashbord, which can be accessed at ``localhost:8080/dashboard``.
 
-It work this way: 
-
-First, we ask data to the api by using ``fetch("http://localhost/api")``. This way, we can get the data from the url, which is our api.
-
-Second, we use the ``.then`` and ``.catch``. The ``.then`` will be triggered when the ``fetch()`` has received an HTTP response from the api. We then need to check if the HTTP response was successfull, which mean the HTTP status code is between 200 and 299. We do that using ``response.ok``. The ``.catch`` will be triggered if there was a problem during the ``fetch()``.
-
-Lastly, we send the payload we received to the populate functions.
-
-To make a request when the page is loaded and every few second, we need to add this code at the end: 
+We also need to add labels to our existing services to specify the path at which the service can be accessed. It looks like this :
 
 ```
-	populatePage();
-	window.setInterval(populatePage, 6000);
+    //apache server
+    - traefik.http.routers.app.rule=Host(`localhost`)
+      
+    //api
+    - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
 ```
+With this configuration, Traefik will redirect the client requests to the good servers.
 
-It will simply call the function once at the beginning and once every 6 seconds.
+## Dynamic clusters
+
+To be working with multiple instances of our services, we need to modify the ``docker-compose.yml`` by adding those two lines in the services we want to scale : 
+```
+    deploy:
+      replicas: 3
+```
+We also doesn't need anymore to specify the ports since traefik will distribute load between each instances.
+
+The final ``docker-compose.yml`` will look like this.
+
+```
+version: '3'
+
+services:
+  traefik:
+    image: traefik
+    container_name: reverse_proxy
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+    ports:
+      - "80:80"
+      - "8080:8080"
+
+    labels:
+      - traefik.enable=true
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  data_api:
+    image: dai/api
+    build:
+      context: express-image
+    deploy:
+      replicas: 3
+    labels:
+      - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
+
+    depends_on:
+      - traefik
+
+  apache_app:
+    image: dai/apache
+    build:
+      context: apache-image
+    deploy:
+      replicas: 3
+    labels:
+      - traefik.http.routers.app.rule=Host(`localhost`)
+    depends_on:
+      - data_api
+      - traefik
+```

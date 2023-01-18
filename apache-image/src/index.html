@@ -71,57 +71,5 @@ http://www.templatemo.com/tm-467-easy-profile
 <script src="js/jquery.backstretch.min.js"></script>
 <script src="js/custom.js"></script>
 
-<script>
-	const status = document.getElementById('status'),
-			espece = document.getElementById('espece'),
-			nom = document.getElementById('nom'),
-			genre = document.getElementById('genre'),
-			naissance = document.getElementById('naissance'),
-			gardien = document.getElementById('gardien');
-
-	function populatePage() {
-		const fetchPromise = fetch("http://localhost/api");
-		console.log(fetchPromise);
-		fetchPromise
-		.then((response) => {
-			if (!response.ok){
-				populateError();
-				throw new Error(`HTTP error: ${response.status}`);
-			}
-			return response.json();
-		})
-		.then((data) => {
-			console.log("data received");
-			populateOk(data);
-		})
-		.catch((error) => {
-			populateError();
-			console.error(`api did not work: ${error}`);
-		})
-	}
-
-	function populateOk(res){
-		status.textContent = "A random animal";
-		espece.textContent = ("Species : " + res.species);
-		nom.textContent = ("Name : " + res.name);
-		genre.textContent = ("Gender : " + res.gender);
-		naissance.textContent = ("Birthday : " + res.birthday);
-		gardien.textContent = ("Overseer : " + res.overseer);
-	}
-
-	function populateError(){
-		status.textContent = ("We can't find any animals :(");
-		espece.textContent=("Try again later please");
-		nom.textContent=("");
-		genre.textContent=("");
-		naissance.textContent=("");
-		gardien.textContent=("");
-	}
-
-	populatePage();
-	window.setInterval(populatePage, 6000);
-
-</script>
-
 </body>
 </html>
