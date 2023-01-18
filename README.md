@@ -32,7 +32,7 @@ To get the config file, we need to get it through the bash of the container by u
 docker exec -i $(docker ps -a -q --filter ancestor=dai/apache) bash -c " cd .. && cd .. && cd .. && cd etc/apache2 && cat apache2.conf"
 ```
 
-It is a bit to big to type, so we used a ``run.sh`` to do things faster with docker. You can learn the usage just below. 
+It is a bit to big to type, so we used a ``run.sh`` script to do things faster with docker. You can learn the usage just below. 
 
 ## How to use run.sh 
 
