@@ -1,93 +1,34 @@
-# Step 3b - Traefik and dynamic clusters
+# Step 3a - Docker compose
 
-## Traefik
-
-Traefik is a reverse proxy that can be used to redirect client requests to the right server. To add Traefik to our project, we simply need to add it as a new service in our  ``docker-compose.yml``, like this
-
-```
-  traefik:
-    image: traefik
-    container_name: reverse_proxy
-    command:
-      - --api.dashboard=true
-      - --api.insecure=true
-      - --providers.docker=true
-    ports:
-      - "80:80"
-      - "8080:8080"
-
-    labels:
-      - traefik.enable=true
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-```
-In our case, we want to activate the Traefik dashbord, which can be accessed at ``localhost:8080/dashboard``.
-
-We also need to add labels to our existing services to specify the path at which the service can be accessed. It looks like this :
-
-```
-    //apache server
-    - traefik.http.routers.app.rule=Host(`localhost`)
-      
-    //api
-    - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
-```
-With this configuration, Traefik will redirect the client requests to the good servers.
-
-## Dynamic clusters
-
-To be working with multiple instances of our services, we need to modify the ``docker-compose.yml`` by adding those two lines in the services we want to scale : 
-```
-    deploy:
-      replicas: 3
-```
-We also doesn't need anymore to specify the ports since traefik will distribute load between each instances.
-
-The final ``docker-compose.yml`` will look like this.
+To use docker compose, we will need to use to add a ``docker-compose.yml`` file at the root of the project. The file will look like this:
 
 ```
 version: '3'
 
 services:
-  traefik:
-    image: traefik
-    container_name: reverse_proxy
-    command:
-      - --api.dashboard=true
-      - --api.insecure=true
-      - --providers.docker=true
-    ports:
-      - "80:80"
-      - "8080:8080"
-
-    labels:
-      - traefik.enable=true
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
   data_api:
     image: dai/api
     build:
       context: express-image
-    deploy:
-      replicas: 3
-    labels:
-      - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
-
-    depends_on:
-      - traefik
+    ports:
+      - "9001:3000"
 
   apache_app:
     image: dai/apache
     build:
       context: apache-image
-    deploy:
-      replicas: 3
-    labels:
-      - traefik.http.routers.app.rule=Host(`localhost`)
+    ports:
+      - "9000:80"
     depends_on:
       - data_api
-      - traefik
+
 ```
+
+We can specify services that we want to run. In our case, we want to run our apache web server and the api in two containers.
+
+To do that, we first need to specify the services, ``data_api`` will run an image of ``dai/api`` and ``apache_app`` will run an image of ``dai/apache``. We can also specify the ports so we can access to them in the browser.
+
+We then need to use the ``docker compose <action>`` command. 
+
+Using ``build`` will build the images required, ``up`` will create containers and start them and finally ``down`` will stop and delete the containers.
+

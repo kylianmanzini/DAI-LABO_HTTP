@@ -1,43 +1,18 @@
 version: '3'
 
 services:
-  traefik:
-    image: traefik
-    container_name: reverse_proxy
-    command:
-      - --api.dashboard=true
-      - --api.insecure=true
-      - --providers.docker=true
-    ports:
-      - "80:80"
-      - "8080:8080"
-
-    labels:
-      - traefik.enable=true
-
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
   data_api:
     image: dai/api
     build:
       context: express-image
-    deploy:
-      replicas: 3
-    labels:
-      - traefik.http.routers.data_api.rule=Host(`localhost`) && PathPrefix(`/api`)
-
-    depends_on:
-      - traefik
+    ports:
+      - "9001:3000"
 
   apache_app:
     image: dai/apache
     build:
       context: apache-image
-    deploy:
-      replicas: 3
-    labels:
-      - traefik.http.routers.app.rule=Host(`localhost`)
+    ports:
+      - "9000:80"
     depends_on:
       - data_api
-      - traefik
