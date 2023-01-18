@@ -1,23 +1,15 @@
-# Step 6 - Management UI
+# Step 5 - Load balancing and sticky sessions
 
- With some search on google, we have found a existing web UI to manage docker containers. 
- 
- We use docker-web-gui (https://github.com/rakibtg/docker-web-gui). It is a simple yet effective tool to manage the project containers.
+## Sticky session
 
- We also have found a docker image of this tool on docker hub (https://hub.docker.com/r/kaive/docker-web-gui). 
-
- With this docker image, it was really simple to use it by simply adding the management UI as a services in the ``docker-compose.yml``, like this :
-
- ```
-  docker-web-gui:
-    image: kaive/docker-web-gui
-    container_name: docker_management_ui
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - traefik.http.routers.docker-web-gui.rule=Host(`manage.localhost`)
+The simple way to add a sticky session is to add two simple line to the service we want to stick to the user : 
+```
+      - traefik.http.services.app.loadbalancer.sticky.cookie=true
+      - traefik.http.services.app.loadbalancer.sticky.cookie.name=sticky-cookie
 ```
 
-When we run ``docker compose up``, it will automaticly be run as a container within our project container stack. Adding the last line allow us to assess the UI by using ``manage.localhost`` as URL.
+In our case, we want the apache web servers to stick. This way, a user will send request to the same server he connected to first.
 
-With this tool, you can stop and start containers, delete them and start new containers based on the image.
+## Load balancing
+
+By default, traefik does use a round robin load balancing system. So we did not had to change anything for it to work. 

@@ -18,14 +18,6 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  docker-web-gui:
-    image: kaive/docker-web-gui
-    container_name: docker_management_ui
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    labels:
-      - traefik.http.routers.docker-web-gui.rule=Host(`manage.localhost`)
-
   data_api:
     image: dai/api
     build:
